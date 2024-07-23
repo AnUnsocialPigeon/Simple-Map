@@ -121,7 +121,7 @@ def generate2() -> None:
         draw_road(map, x1, y1, x2, y2)
 
     # Add some random roads
-    extra_edges = random.sample(edges, min(len(edges), len(mst_edges)))
+    extra_edges = random.sample(edges, min(len(edges), len(mst_edges)))     # Divie len(mst_edges) by 2 to reduce extra road amount
     for _, u, v in extra_edges:
         x1, y1 = points[u]
         x2, y2 = points[v]
