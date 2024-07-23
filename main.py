@@ -9,11 +9,12 @@ destinations = 3
 difficulty = 1
 toFile = False
 grid = False
+show = True
 points = []
 
 def parseArgs() -> bool:
     """Handles arg parsing"""
-    global width, height, destinations, difficulty, toFile
+    global width, height, destinations, difficulty, toFile, grid, show
 
     # Get the args
     parser = argparse.ArgumentParser(description="A mathematical problem generator")
@@ -21,17 +22,19 @@ def parseArgs() -> bool:
     parser.add_argument('-y', type=int, default=100, help='The height of the map')
     parser.add_argument('--destinations', type=int, default=3, help='The amount of destinations to generate')
     parser.add_argument('--difficulty', type=int, default=1, help='The challenge difficulty')
-    parser.add_argument('--to_file', type=bool, default=False, help='Whether to print to screen, or output to a file (output.txt)')
-    parser.add_argument('--grid', type=bool, default=False, help="If enabled, will make the map use grid-generation")
+    parser.add_argument('--toFile', action='store_true', help='When set, will output to a file (output.txt)')
+    parser.add_argument('--grid', action='store_true', help="When set, will make the map use grid-generation")
+    parser.add_argument('--noShow', action='store_true', help="When set, will disable default image pop-up")
 
     # Parse out
     args = parser.parse_args()
-    width = args.x
-    height = args.y
+    width = min(args.x, 2000)
+    height = min(args.y, 2000)
     destinations = args.destinations
     difficulty = args.difficulty
-    toFile = args.to_file
+    toFile = args.toFile
     grid = args.grid
+    show = not args.noShow
 
     return width > 0 and height > 0 and difficulty <= 2 and difficulty > 0 and destinations < width * height and destinations > 1
 
@@ -131,6 +134,8 @@ def generate2() -> None:
 
 def draw_road(map: List[List[str]], x1: int, y1: int, x2: int, y2: int) -> None:
     """Draws a road between two points"""
+    global grid
+
     if x1 == x2:
         # Vertical road
         for y in range(min(y1, y2), max(y1, y2) + 1):
@@ -142,7 +147,7 @@ def draw_road(map: List[List[str]], x1: int, y1: int, x2: int, y2: int) -> None:
     else:
         # Staircase pattern for diagonal roads
         while x1 != x2 or y1 != y2:
-            if grid:    # Extremely lazy code lol
+            if not grid:    # Extremely lazy code lol
                 if x1 != x2:
                     map[y1][x1] = 'RW'
                     if x1 < x2: x1 += 1
@@ -210,13 +215,14 @@ def output(map: List[List[str]]) -> None:
     for row in map:   
         buffer += '\n' + ','.join(row)
 
+    generate_map_image(map, points)
     if toFile:
         with open('./output.txt', 'w') as file:
             file.write(buffer)
+        print("Finished!")
         return
     for line in buffer.split('\n'):
         print(line)     # To output to buffer line at a time for line-based reading operations
-    generate_map_image(map, points)#
 
 
 def generate_map_image(map: List[List[str]], points: List[List[int]]) -> None:
@@ -241,7 +247,7 @@ def generate_map_image(map: List[List[str]], points: List[List[int]]) -> None:
                 pixels[x * cell_size + i, (map_height - 1 - y) * cell_size + j] = (223, 105, 180)
 
     image.save('map_image.png') 
-    image.show()
+    if show: image.show()
 
 
 if __name__ == "__main__" and parseArgs():
