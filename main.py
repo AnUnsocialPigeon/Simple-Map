@@ -175,7 +175,7 @@ def add_traffic_lights(map: List[List[str]]) -> None:
             if 'R' not in map[y][x]:
                 continue
             if count_touching_roads(map, x, y) > 2:
-                map[y][x] = map[y][x].replace(' ', 'T')
+                map[y][x] += 'T'
 
 
 def count_touching_roads(map: List[List[str]], x: int, y: int) -> int:
